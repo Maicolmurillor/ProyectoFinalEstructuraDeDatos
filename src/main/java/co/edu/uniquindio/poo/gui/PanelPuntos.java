@@ -38,6 +38,7 @@ public class PanelPuntos extends VBox implements PanelCliente {
 
     private final Button btnDescuento = new Button("Canjear 100 pts: 10% menos comisión en transferencias");
     private final Button btnRetiros = new Button("Canjear 500 pts: un mes sin cargos por retiros");
+    private final Button btnBono = new Button("Canjear 1000 pts: bono de 50 en el monedero");
 
     private final ListView<String> listaRanking = new ListView<>();
     private final ListView<String> listaHistorial = new ListView<>();
@@ -54,6 +55,7 @@ public class PanelPuntos extends VBox implements PanelCliente {
 
         btnDescuento.setOnAction(e -> canjear(Beneficio.DESCUENTO_TRANSFERENCIAS));
         btnRetiros.setOnAction(e -> canjear(Beneficio.RETIROS_GRATIS));
+        btnBono.setOnAction(e -> canjear(Beneficio.BONO_SALDO));
 
         VBox colRanking = new VBox(6, new Label("Ranking (top 10)"), listaRanking);
         VBox colHistorial = new VBox(6, new Label("Historial de puntos"), listaHistorial);
@@ -65,7 +67,7 @@ public class PanelPuntos extends VBox implements PanelCliente {
         getChildren().addAll(
                 lblCliente, lblRango, lblHistoricos, lblDisponibles, lblSiguiente,
                 new Label("Beneficios activos"), lblDescuento, lblRetiros,
-                new Label("Canjear puntos"), btnDescuento, btnRetiros,
+                new Label("Canjear puntos"), btnDescuento, btnRetiros, btnBono,
                 listas
         );
 
@@ -91,6 +93,7 @@ public class PanelPuntos extends VBox implements PanelCliente {
             lblRetiros.setText("");
             btnDescuento.setDisable(true);
             btnRetiros.setDisable(true);
+            btnBono.setDisable(true);
             listaRanking.getItems().clear();
             listaHistorial.getItems().clear();
             return;
@@ -114,6 +117,7 @@ public class PanelPuntos extends VBox implements PanelCliente {
         btnDescuento.setDisable(sp.tieneDescuentoTransferencias(clienteActual)
                 || clienteActual.getPuntosDisponibles() < Beneficio.DESCUENTO_TRANSFERENCIAS.getCosto());
         btnRetiros.setDisable(clienteActual.getPuntosDisponibles() < Beneficio.RETIROS_GRATIS.getCosto());
+        btnBono.setDisable(clienteActual.getPuntosDisponibles() < Beneficio.BONO_SALDO.getCosto());
 
         listaRanking.getItems().clear();
         List<ArbolPuntosABB.Entrada> top = sp.getRanking(10);

@@ -4,6 +4,7 @@ import co.edu.uniquindio.poo.estructuras.ArbolPuntosABB;
 import co.edu.uniquindio.poo.estructuras.ArbolRangosAVL;
 import co.edu.uniquindio.poo.estructuras.TablaPuntos;
 import co.edu.uniquindio.poo.modelo.Cliente;
+import co.edu.uniquindio.poo.modelo.Monedero;
 import co.edu.uniquindio.poo.modelo.Rango;
 import co.edu.uniquindio.poo.modelo.TipoTransaccion;
 import co.edu.uniquindio.poo.modelo.Transaccion;
@@ -24,7 +25,8 @@ public class ServicioPuntos {
     /** Beneficios que se pueden canjear con puntos disponibles. */
     public enum Beneficio {
         DESCUENTO_TRANSFERENCIAS(100, "10% menos de comisión en transferencias"),
-        RETIROS_GRATIS(500, "Un mes sin cargos por retiros");
+        RETIROS_GRATIS(500, "Un mes sin cargos por retiros"),
+        BONO_SALDO(1000, "Bono de 50 unidades en el monedero principal");
 
         private final int costo;
         private final String descripcion;
@@ -41,6 +43,7 @@ public class ServicioPuntos {
     // Comisión base (AJUSTAR con el grupo o el profesor)
     private static final double TASA_BASE = 0.01;
     private static final double DESCUENTO_BENEFICIO = 0.10;
+    private static final double MONTO_BONO = 50;
 
     private final TablaPuntos tabla = new TablaPuntos();
     private final ArbolPuntosABB ranking = new ArbolPuntosABB();
@@ -117,6 +120,12 @@ public class ServicioPuntos {
                 LocalDate actual = retirosGratisHasta.get(cliente.getId());
                 LocalDate base = (actual != null && actual.isAfter(hoy)) ? actual : hoy;
                 retirosGratisHasta.put(cliente.getId(), base.plusMonths(1));
+                break;
+            case BONO_SALDO:
+                Monedero principal = cliente.getMonederoPrincipal();
+                Transaccion bono = new Transaccion(TipoTransaccion.DEPOSITO, MONTO_BONO, 0, null, principal);
+                principal.aplicar(bono);
+                principal.registrarEnHistorial(bono);
                 break;
         }
         anotar(cliente, "Canje: " + beneficio.getDescripcion() + " -> -" + beneficio.getCosto() + " puntos");
